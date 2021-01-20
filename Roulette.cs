@@ -16,36 +16,74 @@ public class Roulette : MonoBehaviour {
 
 	//ボタンを押したとき
 	public void Push(){
-		start = true;
+		//start = true;
 		push_button.gameObject.SetActive(false);//非表示にする
+
+		//LateUpdateの部分はここに移しても問題ないのでしょうか?
+		speed = 180;
+		hexagon.transform.RotateAround(center, axis, speed * Time.deltaTime);
+		StartCoroutine(RoundCoroutine());
 	}
-	
-	// Update is called once per frame   
-	void Update () {
-		var needle = Needle.instance;//Needleスクリプトからの変数の参照
-		if (start) {
-			hexagon.transform.RotateAround (center, axis, speed * Time.deltaTime);//ルーレットを回す
+
+	//Updateの部分をCoroutineに置き換え
+	//StartCoroutine関数を使って呼び出す。
+	IEnumerator RoundCoroutine()
+    {
+        while (true)
+        {
+			hexagon.transform.RotateAround(center, axis, speed * Time.deltaTime);//ルーレットを回す
 			speed *= boost;
-			if (speed > Random.Range (1000000f, 100000000f) * 1000) {
+			if (speed > Random.Range(1000000f, 100000000f) * 1000)
+			{
 				needle.turn -= 1;//回る分ターンを減らす
-				if (needle.turn < 0) {
+				if (needle.turn < 0)
+				{
 					needle.turn += 1;//負の値にならないようにする
 					speed = 0;//ルーレットを止める
-					push_button.gameObject.SetActive (true);//ボタンを再表示
-					start = false;//ボタンを初期状態にする
-				} else{
+					push_button.gameObject.SetActive(true);//ボタンを再表示
+				    //start = false;//ボタンを初期状態にする
+					return; //コルーチンから抜ける
+				}
+				else
+				{
 					speed = 1;//もう一回回す
 				}
 			}
+
+			yield return null;  //これで1フレーム待つという処理になる。
 		}
-	}
+    }
+	
+	// Update is called once per frame   
+	//void Update () {
+	//	var needle = Needle.instance;//Needleスクリプトからの変数の参照
+	//	if (start) {
+	//		hexagon.transform.RotateAround(center, axis, speed * Time.deltaTime);//ルーレットを回す
+	//		speed *= boost;
+	//		if (speed > Random.Range(1000000f, 100000000f) * 1000)
+	//		{
+	//			needle.turn -= 1;//回る分ターンを減らす
+	//			if (needle.turn < 0)
+	//			{
+	//				needle.turn += 1;//負の値にならないようにする
+	//				speed = 0;//ルーレットを止める
+	//				push_button.gameObject.SetActive(true);//ボタンを再表示
+	//				start = false;//ボタンを初期状態にする
+	//			}
+	//			else
+	//			{
+	//				speed = 1;//もう一回回す
+	//			}
+	//		}
+	//	}
+	//}
 
 	//再表示されたボタンを押したときの処理
-	void LateUpdate() {
-		var needle = Needle.instance;//Needleスクリプトからの変数の参照
-		if (start && speed <= 0) {
-			speed = 180;
-			hexagon.transform.RotateAround (center, axis, speed * Time.deltaTime);
-		}
-	}
+	//void LateUpdate() {
+	//	var needle = Needle.instance;//Needleスクリプトからの変数の参照
+	//	if (start && speed <= 0) {
+	//		speed = 180;
+	//		hexagon.transform.RotateAround(center, axis, speed * Time.deltaTime);
+	//	}
+	//}
 }
